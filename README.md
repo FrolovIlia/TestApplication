@@ -44,14 +44,6 @@ Android-приложение на **Jetpack Compose**, реализующее и
 
 Введите ID тренировки (например, 68) и нажмите Загрузить
 
-📡 Работа с API
-Эндпоинт: GET https://sr111.05.testing.place/api/v2/interval-timers/{id}
-
-Заголовки:
-
-App-Token: secret
-
-Authorization: Bearer pdhO16atBIXogpPzaLDjDcl5Gpmbz9Mdl1mjhrhWZBuOgNCgxDlk7mMIbFcEc7mj
 
 🧭 Навигация по приложению
 Экран	Описание
