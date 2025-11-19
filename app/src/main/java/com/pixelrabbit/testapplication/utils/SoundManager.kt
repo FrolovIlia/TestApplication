@@ -31,7 +31,6 @@ class SoundManager @Inject constructor(
             SoundPool(3, android.media.AudioManager.STREAM_MUSIC, 0)
         }
 
-        // Загружаем звук из raw ресурсов
         beepSoundId = soundPool.load(context, R.raw.beep, 1)
     }
 

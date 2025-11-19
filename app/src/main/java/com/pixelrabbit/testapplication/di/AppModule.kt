@@ -2,7 +2,6 @@ package com.pixelrabbit.testapplication.di
 
 import android.content.Context
 import com.pixelrabbit.testapplication.data.api.WorkoutApiService
-import com.pixelrabbit.testapplication.data.repository.MockWorkoutRepository
 import com.pixelrabbit.testapplication.data.repository.WorkoutRepository
 import com.pixelrabbit.testapplication.utils.SoundManager
 import dagger.Module
@@ -28,22 +27,6 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideMockWorkoutRepository(): MockWorkoutRepository {
-        return MockWorkoutRepository()
-    }
-
-    @Provides
-    @Singleton
-    fun provideWorkoutRepository(
-        mockRepository: MockWorkoutRepository
-    ): WorkoutRepository {
-        return WorkoutRepository(mockRepository)
-    }
-
-    // Закомментированные API зависимости остаются как есть
-    /*
-    @Provides
-    @Singleton
     fun provideOkHttpClient(): OkHttpClient {
         val logging = HttpLoggingInterceptor().apply {
             level = HttpLoggingInterceptor.Level.BODY
@@ -56,7 +39,7 @@ object AppModule {
 
     @Provides
     @Singleton
-    fun provideWorkoutApiService(okHttpClient: OkHttpClient): WorkoutApiService {
+    fun provideWorkoutApi(okHttpClient: OkHttpClient): WorkoutApiService {
         return Retrofit.Builder()
             .baseUrl("https://sr111.05.testing.place/")
             .client(okHttpClient)
@@ -64,5 +47,10 @@ object AppModule {
             .build()
             .create(WorkoutApiService::class.java)
     }
-    */
+
+    @Provides
+    @Singleton
+    fun provideWorkoutRepository(api: WorkoutApiService): WorkoutRepository {
+        return WorkoutRepository(api)
+    }
 }

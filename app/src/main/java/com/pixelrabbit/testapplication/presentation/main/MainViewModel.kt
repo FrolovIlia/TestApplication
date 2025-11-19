@@ -15,6 +15,7 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val repository: WorkoutRepository
 ) : ViewModel() {
+
     private val _uiState = MutableStateFlow(MainUiState())
     val uiState: StateFlow<MainUiState> = _uiState.asStateFlow()
 
@@ -27,25 +28,26 @@ class MainViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, error = null) }
 
             val id = _uiState.value.workoutId.toIntOrNull() ?: 68
-            repository.getWorkout(id).fold(
-                onSuccess = { workout ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            workout = workout,
-                            navigateToWorkout = true
-                        )
-                    }
-                },
-                onFailure = { error ->
-                    _uiState.update {
-                        it.copy(
-                            isLoading = false,
-                            error = error.message ?: "Неизвестная ошибка"
-                        )
-                    }
+            try {
+                // Вызываем метод loadWorkout из репозитория
+                val workout = repository.loadWorkout(id)
+
+                // Сохраняем тренировку и сигнализируем о переходе
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        workout = workout,
+                        navigateToWorkout = true
+                    )
                 }
-            )
+            } catch (e: Exception) {
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        error = e.message ?: "Неизвестная ошибка"
+                    )
+                }
+            }
         }
     }
 
@@ -53,7 +55,7 @@ class MainViewModel @Inject constructor(
         _uiState.update { it.copy(navigateToWorkout = false) }
     }
 
-    // Добавьте этот метод для обработки ошибок
+    // Метод для обработки ошибок
     fun onError(errorMessage: String) {
         _uiState.update { it.copy(error = errorMessage) }
     }

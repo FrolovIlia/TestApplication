@@ -5,24 +5,26 @@ import com.squareup.moshi.JsonClass
 
 @JsonClass(generateAdapter = true)
 data class WorkoutResponse(
-    @Json(name = "id")
-    val id: Int,
-
-    @Json(name = "name")
-    val name: String,
-
-    @Json(name = "intervals")
-    val intervals: List<IntervalResponse>
+    @Json(name = "timer")
+    val timer: TimerDto
 )
 
 @JsonClass(generateAdapter = true)
-data class IntervalResponse(
-    @Json(name = "id")
-    val id: Int,
+data class TimerDto(
+    @Json(name = "timer_id")
+    val timerId: Int,
 
-    @Json(name = "duration")
-    val duration: Int,
+    val title: String,
 
-    @Json(name = "type")
-    val type: String
+    @Json(name = "total_time")
+    val totalTime: Int,
+
+    val intervals: List<IntervalDto>
+)
+
+@JsonClass(generateAdapter = true)
+data class IntervalDto(
+    val title: String,
+    @Json(name = "time")
+    val time: Int
 )

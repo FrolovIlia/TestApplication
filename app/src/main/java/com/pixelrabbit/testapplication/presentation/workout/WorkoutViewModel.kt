@@ -31,7 +31,8 @@ class WorkoutViewModel(private val soundManager: SoundManager) {
     var uiState by mutableStateOf(
         WorkoutUiState(
             workout = workout,
-            remainingTime = workout.intervals.firstOrNull()?.duration ?: 0
+            remainingTime = workout.intervals.firstOrNull()?.duration ?: 0,
+            gpsTrack = listOf(GeoPoint(initialLatitude, initialLongitude))
         )
     )
         private set
@@ -51,14 +52,12 @@ class WorkoutViewModel(private val soundManager: SoundManager) {
         uiState = uiState.copy(
             isRunning = true,
             currentIntervalIndex = 0,
-            gpsTrack = listOf(GeoPoint(currentLatitude, currentLongitude)),
-            remainingTime = workout.intervals.first().duration
+            remainingTime = workout.intervals.firstOrNull()?.duration ?: 0,
+            gpsTrack = listOf(GeoPoint(currentLatitude, currentLongitude))
         )
 
-        // Один пик при начале тренировки
-        coroutineScope.launch {
-            soundManager.playBeep(true)
-        }
+        // Один бип при начале тренировки
+        coroutineScope.launch { soundManager.playBeep(true) }
 
         startTimer()
         startGpsTracking()
@@ -71,10 +70,8 @@ class WorkoutViewModel(private val soundManager: SoundManager) {
         timerJob = null
         gpsJob = null
 
-        // Два пика при остановке тренировки
-        coroutineScope.launch {
-            soundManager.playBeep(false)
-        }
+        // Два бипа при остановке тренировки
+        coroutineScope.launch { soundManager.playBeep(false) }
     }
 
     private fun startTimer() {
@@ -84,10 +81,8 @@ class WorkoutViewModel(private val soundManager: SoundManager) {
             while (uiState.isRunning && uiState.currentIntervalIndex < workout.intervals.size) {
                 val currentInterval = workout.intervals[uiState.currentIntervalIndex]
 
-                // Один пик при начале каждого интервала (кроме первого)
-                if (!isFirstInterval) {
-                    soundManager.playBeep(true)
-                }
+                // Один бип при начале каждого интервала, кроме первого (уже был бип старта)
+                if (!isFirstInterval) soundManager.playBeep(true)
                 isFirstInterval = false
 
                 for (time in currentInterval.duration downTo 1) {
@@ -97,6 +92,7 @@ class WorkoutViewModel(private val soundManager: SoundManager) {
                     delay(1000)
                 }
 
+                // Переход к следующему интервалу или завершение тренировки
                 if (uiState.isRunning) {
                     if (uiState.currentIntervalIndex < workout.intervals.size - 1) {
                         uiState = uiState.copy(
@@ -117,12 +113,12 @@ class WorkoutViewModel(private val soundManager: SoundManager) {
                 delay(2000)
 
                 if (uiState.isRunning) {
+                    // Генерация координат для демонстрации
                     currentLatitude += Random.nextDouble(-0.0003, 0.0003)
                     currentLongitude += Random.nextDouble(-0.0003, 0.0003)
 
                     val newPoint = GeoPoint(currentLatitude, currentLongitude)
                     val updatedTrack = uiState.gpsTrack + newPoint
-
                     uiState = uiState.copy(gpsTrack = updatedTrack)
                 }
             }
